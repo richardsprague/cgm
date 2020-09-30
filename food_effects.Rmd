@@ -1,0 +1,146 @@
+---
+title: "How specific foods affect my glucose levels"
+author: Richard Sprague
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+source("read_cgm_data.R")
+
+
+activity_raw$Start <- activity_raw$Start %>% lubridate::parse_date_time(order = "ymd HMS",tz = "US/Pacific")
+activity_raw$End <- activity_raw$End %>% lubridate::parse_date_time(order = "ymd HMS", tz = "US/Pacific")
+
+
+glucose <- libre_raw %>% select(time = "Meter Timestamp", 
+                                scan = "Scan Glucose(mg/dL)",
+                                hist = "Historic Glucose(mg/dL)",
+                                strip = "Strip Glucose(mg/dL)",
+                                food = "Notes")
+
+#glucose$time <- readr::parse_datetime(libre_raw$`Meter Timestamp`,locale = locale(tz="US/Pacific"))
+
+glucose$time <- lubridate::as_datetime(libre_raw$`Meter Timestamp`, tz = "US/Pacific")
+# 
+glucose$value <- dplyr::if_else(is.na(glucose$scan),glucose$hist,glucose$scan)
+
+# apply correction for faulty 2019-01-08 sensor
+#glucose$value <- dplyr::if_else(glucose$time>as_datetime("2019-01-08"),glucose$value+35,glucose$value)
+
+# apply correction for faulty 2019-03-24 sensor
+#glucose$value <- dplyr::if_else(glucose$time>as_datetime("2019-03-23"),glucose$value+35,glucose$value)
+
+
+glucose_raw <- glucose
+
+source("cgm_display.R")
+```
+
+Here are my glucose levels each time I eat a particular food.
+
+First, oatmeal:
+
+```{r foodEffectsOatmeal}
+
+food_compare_display(c("Oatmeal (plain)","Oatmeal w/milk","Oatmeal w/butter", "Oatmeal w/cinnamon", "Oatmeal (Reducose)"), foodtype = "eating oatmeal")
+```
+
+and a bunch of other foods:
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+foodlist <- c("Potato (reheated)","Lamb + potato")
+food_effect(foodlist) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after eating potatoes", x = "Minutes", y = "mg/dL")
+ 
+
+
+## Beer
+foodlist <- activity_raw %>% dplyr::filter(str_detect(str_to_lower(activity_raw$Comment),pattern = "beer \\(empty stomach\\)")) %>% .$Comment
+food_effect(foodlist, timelength = lubridate::hours(1)) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after drinking beer", x = "Minutes", y = "mg/dL")
+# 
+
+## Pasta
+foodlist <- c("Pesto pasta","Pasta (pesto)", "Pasta whole wheat w/tomato",  "Pasta mushroom chicken")
+food_effect(foodlist) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after eating pasta", x = "Minutes", y = "mg/dL")
+# 
+
+## Apples
+
+foodlist <- c("Apple")
+food_effect(foodlist, timelength = hours(1)) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after eating an apple", x = "Minutes", y = "mg/dL")
+# 
+
+## ramen
+foodlist <- c("Ramen", "donut")
+food_effect(foodlist, timelength = hours(2)) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after eating instant ramen", x = "Minutes", y = "mg/dL")
+# 
+
+foodlist <- c("Blueberry Kefir", "Blueberry Kefir w Cinnamon")
+food_effect(foodlist, timelength = hours(2)) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after drinking kefir", x = "Minutes", y = "mg/dL")
+# 
+
+from <- activity_raw %>% filter(Comment == "Apple juice") %>% .$Start
+
+food_effect(foodlist = c("Apple juice","Apple juice + donut")) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after apple juice", x = "Minutes", y = "mg/dL")
+
+ggplot(data = glucose_raw %>% filter(time > from
+                       & time < (from + hours(2))),
+       aes(x=time,y=value)) + geom_line(size=2, color = "red") + glucose_target_gg +
+  # scale_x_continuous() + 
+  labs(title = "Glucose after drinking apple juice", x = "Minutes", y = "mg/dL")
+
+# from <- activity_raw %>% filter(Comment == "Baguette") %>% .$Start
+# ggplot(data = glucose_raw %>% filter(time > from
+#                        & time < (from + hours(2))),
+#        aes(x=time,y=value)) + geom_line(size=2, color = "red") + glucose_target_gg +
+#   # scale_x_continuous() + 
+#   labs(title = "Glucose after a baguette", x = "Minutes", y = "mg/dL")
+
+food_effect(foodlist = c("Baguette","Whole Wheat Bread", "Whole Wheat w/ Reducose")) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose and Bread", x = "Minutes", y = "mg/dL")
+
+
+
+cgm_display(start = activity_raw %>% filter(Comment == "Apple juice") %>% .$Start, 
+            end = activity_raw %>% filter(Comment == "Apple juice") %>% .$Start + hours(2))
+
+
+
+cgm_display(start = activity_raw %>% filter(Comment == "Ramen") %>% .$Start, 
+            end = activity_raw %>% filter(Comment == "Ramen") %>% .$Start + hours(2))
+
+foods_experiment <- food_effect(foodlist="Ice Cream") 
+foods_experiment %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after eating ice cream", x = "Minutes", y = "mg/dL")
+
+
+cgm_display(start = activity_raw %>% filter(Comment == "Blueberry-banana") %>% pull(Start),
+            end = activity_raw %>% filter(Comment == "Blueberry-banana") %>% pull(Start) + hours(2)
+) + labs(x = "time", title = "After a smoothie", subtitle = "Glucose (mg/dL)", y = "mg/dL") + scale_x_datetime(limits = c(activity_raw %>% filter(Comment == "Blueberry-banana") %>% pull(Start),
+                                                                                                                             activity_raw %>% filter(Comment == "Blueberry-banana") %>% pull(Start) + hours(2)))
+
+
+foodlist <- activity_raw %>% dplyr::filter(str_detect(str_to_lower(activity_raw$Comment),pattern = "latte")) %>% .$Comment
+# 
+# food_effect(foodlist) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after drinking a latte", x = "Minutes", y = "mg/dL")
+
+food_effect(c("CBD")) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after CBD", x = "Minutes", y = "mg/dL")
+
+# food_effect(foodlist) %>% group_by(experiment) %>% summarize(max(value), min(value), change = max(value)-min(value))  %>% knitr::kable(caption = "Glucose Changes from drinking a latte")
+# 
+
+
+foodlist <- c("Salmon")
+food_effect(foodlist, timelength = hours(1)) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after eating salmon", x = "Minutes", y = "mg/dL")
+
+foodlist <- c("Chips", "Chips (Reducose)", "chips and guacamole")
+food_effect(foodlist) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Glucose after Chips", x = "Minutes", y = "mg/dL")
+
+foodlist <- c("FiberOne almond milk blueberries", "FiberOne yogurt", "FiberOne whole milk","FiberOne yogurt banana","FiberOne almond milk banana","FiberOne almond milk")
+food_effect(foodlist) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "FiberOne High Fiber Cereal", x = "Minutes", y = "mg/dL")
+
+foodlist <- c("Granola almond milk", "Granola yogurt banana", "Granola (110g) almond milk","Yogurt granola blueberries")
+food_effect(foodlist) %>% group_by(experiment) %>% mutate(delta = (time - min(time))/60) %>% ggplot(aes(x=delta,y=value, color = experiment)) + geom_line(size = 2) + scale_x_continuous() + labs(title = "Granola Cereal", x = "Minutes", y = "mg/dL")
+
+# 
+```
