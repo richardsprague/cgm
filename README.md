@@ -1,7 +1,7 @@
 Continuous Glucose Monitoring with Freestyle Libre
 ================
 Richard Sprague
-2020-01-28
+2020-12-09
 
 See [Continous Glucose Monitoring: Start
 Here](http://richardsprague.com/notes/continuous-glucose-monitoring/)
@@ -88,8 +88,7 @@ glucose_raw <- glucose
 # libre_raw$`Meter Timestamp` %>% lubridate::parse_date_time(order = "ymd HMS",tz = "US/Pacific")
 ```
 
-Set up a few convenience
-functions.
+Set up a few convenience functions.
 
 ``` r
 library(cgmr) # loads my private package that includes all the functions for analysis
@@ -98,7 +97,7 @@ library(cgmr) # loads my private package that includes all the functions for ana
 View the last couple days of the dataset:
 
 ``` r
-startDate <- now() - days(2) #min(glucose$time)
+startDate <- glucose_raw %>% arrange(time) %>% pull(time) %>% max() - days(2) #min(glucose$time)
 
 #cgm_display(startDate,now()-days(6))
 
@@ -121,8 +120,7 @@ cgm_display(start = min(glucose_raw$time),min(glucose_raw$time)+hours(24))
 #dev.off()
 ```
 
-The final full day of the
-dataset:
+The final full day of the dataset:
 
 ``` r
 cgm_start_plot(startTime = max(glucose_raw$time)-days(1), timeLength = 24, title = "Latest Full Day")

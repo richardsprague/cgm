@@ -88,7 +88,7 @@ View the last couple days of the dataset:
 
 ```{r, message = FALSE, warning = FALSE}
 
-startDate <- now() - days(2) #min(glucose$time)
+startDate <- glucose_raw %>% arrange(time) %>% pull(time) %>% max() - days(2) #min(glucose$time)
 
 #cgm_display(startDate,now()-days(6))
 
