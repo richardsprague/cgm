@@ -1,7 +1,7 @@
 Continuous Glucose Monitoring with Freestyle Libre
 ================
 Richard Sprague
-2020-12-09
+2021-06-11
 
 See [Continous Glucose Monitoring: Start
 Here](http://richardsprague.com/notes/continuous-glucose-monitoring/)
@@ -14,7 +14,7 @@ View a Shiny version of my current data at
 <https://personalscience.shinyapps.io/librelink/>.
 \[[Source](https://github.com/richardsprague/cgm/tree/master/librelink)\]
 
-Read (and edit\!) my [Continuous Glucose Monitoring Hackers
+Read (and edit!) my [Continuous Glucose Monitoring Hackers
 Guide](https://docs.google.com/document/d/11DFx0E-ZQ-r_D1SqXvMtvkDCjx6j7NevrE43WSaKyJE/edit?usp=sharing)
 for details for how to get started, plus as many resources as I know
 about other apps and links that you might find useful for beginning your
@@ -23,17 +23,17 @@ own CGM analysis.
 This is a short R script I use for my analysis. (also available as an R
 Package: [cgmr](https://github.com/richardsprague/cgm/tree/master/cgmr))
 
------
+------------------------------------------------------------------------
 
 ## Prerequisites
 
 Besides the working sensor, to run this script you’ll need:
 
-  - A registered account on Freestyle’s official site:
+-   A registered account on Freestyle’s official site:
     [libreview.com](https://www2.libreview.com/)
-  - Data downloaded from the Libreview site. (I download it and convert
+-   Data downloaded from the Libreview site. (I download it and convert
     to XLSX format in the file “Librelink.xlsx”)
-  - A separate activity file to register your food, exercise, sleep, and
+-   A separate activity file to register your food, exercise, sleep, and
     other events. (Another XLSX file I call “Activity.XLSX”)
 
 See examples of all my raw data files in the
