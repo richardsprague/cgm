@@ -1,59 +1,38 @@
-Continuous Glucose Monitoring with Freestyle Libre
-================
-Richard Sprague
-2021-06-11
+# Continuous Glucose Monitoring with Freestyle Libre
 
-See [Continous Glucose Monitoring: Start
-Here](http://richardsprague.com/notes/continuous-glucose-monitoring/)
+Richard Sprague 2021-06-11
 
-I’ve been tracking my glucose levels 24 x 7 using a continuous glucose
-monitor from Abbott Labs called the [Freestyle
-Libre](https://www.freestylelibre.us/index.html).
+NOTE: This repo is no longer maintained. Instead, please use <https://github.com/personalscience/cgmr>
 
-View a Shiny version of my current data at
-<https://personalscience.shinyapps.io/librelink/>.
-\[[Source](https://github.com/richardsprague/cgm/tree/master/librelink)\]
+See [Continous Glucose Monitoring: Start Here](http://richardsprague.com/notes/continuous-glucose-monitoring/)
 
-Read (and edit!) my [Continuous Glucose Monitoring Hackers
-Guide](https://docs.google.com/document/d/11DFx0E-ZQ-r_D1SqXvMtvkDCjx6j7NevrE43WSaKyJE/edit?usp=sharing)
-for details for how to get started, plus as many resources as I know
-about other apps and links that you might find useful for beginning your
-own CGM analysis.
+I've been tracking my glucose levels 24 x 7 using a continuous glucose monitor from Abbott Labs called the [Freestyle Libre](https://www.freestylelibre.us/index.html).
 
-This is a short R script I use for my analysis. (also available as an R
-Package: [cgmr](https://github.com/richardsprague/cgm/tree/master/cgmr))
+View a Shiny version of my current data at <https://personalscience.shinyapps.io/librelink/>. [[Source](https://github.com/richardsprague/cgm/tree/master/librelink)]
+
+Read (and edit!) my [Continuous Glucose Monitoring Hackers Guide](https://docs.google.com/document/d/11DFx0E-ZQ-r_D1SqXvMtvkDCjx6j7NevrE43WSaKyJE/edit?usp=sharing) for details for how to get started, plus as many resources as I know about other apps and links that you might find useful for beginning your own CGM analysis.
+
+This is a short R script I use for my analysis. (also available as an R Package: [cgmr](https://github.com/richardsprague/cgm/tree/master/cgmr))
 
 ------------------------------------------------------------------------
 
 ## Prerequisites
 
-Besides the working sensor, to run this script you’ll need:
+Besides the working sensor, to run this script you'll need:
 
--   A registered account on Freestyle’s official site:
-    [libreview.com](https://www2.libreview.com/)
--   Data downloaded from the Libreview site. (I download it and convert
-    to XLSX format in the file “Librelink.xlsx”)
--   A separate activity file to register your food, exercise, sleep, and
-    other events. (Another XLSX file I call “Activity.XLSX”)
+-   A registered account on Freestyle's official site: [libreview.com](https://www2.libreview.com/)
+-   Data downloaded from the Libreview site. (I download it and convert to XLSX format in the file "Librelink.xlsx")
+-   A separate activity file to register your food, exercise, sleep, and other events. (Another XLSX file I call "Activity.XLSX")
 
-See examples of all my raw data files in the
-[librelink](https://github.com/richardsprague/cgm/tree/master/librelink)
-directory.
+See examples of all my raw data files in the [librelink](https://github.com/richardsprague/cgm/tree/master/librelink) directory.
 
-One you have downloaded the raw Librelink data and created the activity
-file, you must read the results into two dataframes:
+One you have downloaded the raw Librelink data and created the activity file, you must read the results into two dataframes:
 
-`libre_raw` : the raw output from a Librelink CSV file. You could just
-read.csv straight from the CSV if you like.
+`libre_raw` : the raw output from a Librelink CSV file. You could just read.csv straight from the CSV if you like.
 
-`activity_raw`: your file containing the metadata about whatever you’d
-like to track. The following script assumes you’ll have variables for
-`Sleep`, `Exercise`, `Food`, and a catch-all called `Event`.
+`activity_raw`: your file containing the metadata about whatever you'd like to track. The following script assumes you'll have variables for `Sleep`, `Exercise`, `Food`, and a catch-all called `Event`.
 
-Now clean up the data and then set up a few other useful variables. Be
-careful about time zones: the raw data comes as UTC time, so you’ll need
-to convert everything to your local time zone if you want the following
-charts to match.
+Now clean up the data and then set up a few other useful variables. Be careful about time zones: the raw data comes as UTC time, so you'll need to convert everything to your local time zone if you want the following charts to match.
 
 ``` r
 library(tidyverse)
@@ -106,8 +85,7 @@ cgm_display(startDate,startDate + days(2))
 
 ![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
-Here’s just for a single day. Note that the commented-out lines will let
-you output to a PDF file if you like.
+Here's just for a single day. Note that the commented-out lines will let you output to a PDF file if you like.
 
 ``` r
 #pdf("icecream.pdf", width = 11, height = 8.5)
@@ -130,8 +108,7 @@ cgm_start_plot(startTime = max(glucose_raw$time)-days(1), timeLength = 24, title
 
 ## Food types
 
-I measured myself while trying various foods. Click
-[here](food_effects.md) to see the results.
+I measured myself while trying various foods. Click [here](food_effects.md) to see the results.
 
 ## Basic Statistics
 
